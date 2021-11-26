@@ -1,45 +1,61 @@
-const firebaseConfig = {
-    apiKey: "AIzaSyA49rBWmPizgzcxGkftz7SbiiwWCXw0co0",
-    authDomain: "kwitter-db-8a47b.firebaseapp.com",
-    databaseURL: "https://kwitter-db-8a47b-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "kwitter-db-8a47b",
-    storageBucket: "kwitter-db-8a47b.appspot.com",
-    messagingSenderId: "471817541894",
-    appId: "1:471817541894:web:bf846811dd612abf53a687"
+// Your web app's Firebase configuration
+var firebaseConfig = {
+    apiKey: "AIzaSyBp7qDWIWurLyz661suJdOnFj-LVR8vWW4",
+    authDomain: "practice-app-8cfdc.firebaseapp.com",
+    databaseURL: "https://practice-app-8cfdc-default-rtdb.firebaseio.com",
+    projectId: "practice-app-8cfdc",
+    storageBucket: "practice-app-8cfdc.appspot.com",
+    messagingSenderId: "986014958631",
+    appId: "1:986014958631:web:c97f39fb2c4b86e509fa02"
 };
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-// Actual Code
+var app = firebase.initializeApp(firebaseConfig);
+//YOUR FIREBASE LINKS
+// Code
+roomName = localStorage.getItem("RoomName");
 function getData() {
-    firebase.database().ref("/").on('value', function (snapshot) {
+    firebase.database().ref("/" + roomName).on('value', function (snapshot) {
         document.getElementById("output").innerHTML = ""; snapshot.forEach(function (childSnapshot) {
-            childKey = childSnapshot.key; Room_names = childKey;
-            //Start code
-            console.log(Room_names);
-            room = '<div class="room_name" id=' + Room_names + ' onclick="redirectToRoomName(this.id)">#' + Room_names + "</div><hr>"
-            document.getElementById("output").innerHTML = room;
-            //End code
+            childKey = childSnapshot.key; childData = childSnapshot.val(); if (childKey != "purpose") {
+                firebase_message_id = childKey;
+                message_data = childData;
+                //Start code
+                console.log(firebase_message_id);
+                console.log(message_data);
+                Name = message_data['name'];
+                Message = message_data['message'];
+                Likes = message_data['likes']
+                NameTag = "<h4>" + Name + "<img class='user_tick' src='tick.png'></h4>";
+                MessageTag = "<h4 class='message_h4'>" + message + "</h4>";
+                LikesTag = "<button class='btn btn-warning' id=" + firebase_message_id + " value=" + Likes + " onclick='updateLike(this.id)'><span class='glyphicon glyphicon-thumbs-up'>Like " + Likes + "</span></button><hr>";
+                document.getElementById("Output").innerHTML += (NameTag + MessageTag + LikesTag);
+                //End code
+            }
         });
     });
 }
 getData();
 
-function addRoom() {
-    RoomName = document.getElementById("roomName").value;
-    firebase.database().ref("/").child(RoomName).update({
-          purpose: "For future reference"
+function send() {
+    msg = document.getElementById("msg").value;
+    firebase.database().ref(roomName).push({
+        name: user_name, message: msg, like: 0
     });
-    localStorage.setItem("RoomName", RoomName);
-    window.location = "kwitter_page.html";
+    document.getElementById("msg").value = "";
 }
 
-function redirectToRoomName(name) {
-    console.log(name);
-    localStorage.setItem("roomName", name);
-    window.location = "kwitter_page.html";
+function updateLike(messageId) {
+    console.log("Clicked on Like Button - " + messageId);
+    likes = document.getElementById(messageId).value;
+    Likes = Number(likes) + 1;
+    console.log(Likes);
+
+    firebase.database().ref(roomName).child(messageId).update({
+        likeCount: Likes
+    });
 }
 
-function logOut() {
+function logout() {
     localStorage.removeItem("roomName");
     localStorage.removeItem("Username");
     window.location.replace("index.html");
