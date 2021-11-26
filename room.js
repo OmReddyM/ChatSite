@@ -12,16 +12,33 @@ const app = initializeApp(firebaseConfig);
 // Actual Code
 function getData() {
     firebase.database().ref("/").on('value', function (snapshot) {
-          document.getElementById("output").innerHTML = ""; snapshot.forEach(function (childSnapshot) {
-                childKey = childSnapshot.key;
-                Room_names = childKey;
-                //Start code
-
-                //End code
-          });
+        document.getElementById("output").innerHTML = ""; snapshot.forEach(function (childSnapshot) {
+            childKey = childSnapshot.key; Room_names = childKey;
+            //Start code
+            console.log(Room_names);
+            room = '<div class="room_name" id=' + Room_names + ' onclick="redirectToRoomName(this.id)">#' + Room_names + "</div><hr>"
+            document.getElementById("output").innerHTML = room;
+            //End code
+        });
     });
 }
 getData();
+
+function addRoom() {
+    RoomName = document.getElementById("roomName").value;
+    firebase.database().ref("/").child(RoomName).update({
+          purpose: "For future reference"
+    });
+    localStorage.setItem("RoomName", RoomName);
+    window.location = "kwitter_page.html";
+}
+
+function redirectToRoomName(name) {
+    console.log(name);
+    localStorage.setItem("roomName", name);
+    window.location = "kwitter_page.html";
+}
+
 function logOut() {
     localStorage.removeItem("roomName");
     localStorage.removeItem("Username");
